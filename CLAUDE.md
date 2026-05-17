@@ -152,6 +152,24 @@ RootStack
 
 ## Git и публикация
 
-Репо ещё не инициализирован (`Is a git repository: false`). При первой коммите — добавь `.gitignore` с `node_modules`, `.expo`, `dist`, `*.log`. Чувствительные ключи (Supabase URL/anon-key, когда появятся) — через `.env` + `expo-constants`, никогда в коде.
+Репо: https://github.com/DanPtrh/gran. Две ветки — `main` и `develop`.
 
-Сборка для сторов — через **EAS Build** (`eas build --platform android`). AAB заливается в Google Play и RuStore раздельно.
+### Правило веток
+
+**По умолчанию работаем в `develop`.** Любые фичи, эксперименты, незавершённые куски, экраны в полировке, любые коммиты в обычном рабочем цикле — всё идёт на `develop`. Не нужно спрашивать у пользователя «куда коммитить», ответ всегда `develop`.
+
+**`main` — только релизные состояния.** Туда переезжаем только когда:
+- Готовится сборка для подачи в RuStore / Google Play
+- Пользователь явно сказал «делаем релиз» / «переводим в main»
+
+Релизный мердж — обычным `git checkout main && git merge develop && git push origin main`, потом возврат на `develop` для продолжения работы. **Никаких force-push** на main без явного разрешения.
+
+### Гигиена коммитов
+
+- Чувствительные ключи (Supabase URL/anon-key, FCM, любые external API tokens) — через `.env` + `expo-constants`, никогда в коде. `.env*.local` уже в `.gitignore`.
+- Перед коммитом — проверять `git status`, чтобы случайно не уйти `node_modules`, `.expo`, временные SVG из `/tmp`, отладочные `console.log`.
+- Коммит-сообщения — содержательные, на русском или английском (соблюдай стиль предыдущих коммитов в репо). С `Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>` если коммит создавался ассистентом.
+
+### Сборка для стора
+
+Через **EAS Build** (`eas build --platform android`). AAB заливается в Google Play и RuStore раздельно. Перед сборкой убедись, что `__DEV__`-bypass-логика в `pickTaskForToday` действительно отключится (продакшен-флаг `__DEV__ === false` это сделает автоматически).
