@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>ГРАНЬ — доработка V3</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --bg-elev: #13131A;
+    --text: #F0EAD6;
+    --text-dim: rgba(240, 234, 214, 0.55);
+    --text-faint: rgba(240, 234, 214, 0.28);
+    --accent: #C8923A;
+    --border: rgba(240, 234, 214, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', serif;
+    padding: 48px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-weight: 600;
+    font-size: 32px;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 48px;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .variant {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 28px;
+  }
+  .variant.recommended {
+    border-color: var(--accent);
+  }
+  .variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .variant-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+  }
+  .rec-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .variant-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 24px 0;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .display-large {
+    width: 180px;
+    height: 180px;
+  }
+  .display-medium {
+    width: 96px;
+    height: 96px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .display-small {
+    width: 56px;
+    height: 56px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+  }
+  svg { width: 100%; height: 100%; display: block; }
+  .variant-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 14px;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+  }
+  .wordmark-section {
+    margin-top: 64px;
+  }
+  .wordmark-section h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .wordmark-combo {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 64px 48px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex-direction: column;
+  }
+  .wordmark-combo svg {
+    width: 80px;
+    height: 80px;
+  }
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 42px;
+    letter-spacing: 10px;
+    color: var(--text);
+  }
+  .tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--accent);
+    text-transform: lowercase;
+  }
+  .home-mockup {
+    margin-top: 48px;
+    padding: 48px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+  }
+  .home-mockup h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .home-icons {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .home-icon {
+    width: 80px;
+    text-align: center;
+  }
+  .home-icon-bg {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .home-icon-label {
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+</style>
+</head>
+<body>
+
+<h1>ГРАНЬ — доработки V3</h1>
+<p class="subtitle">
+  Базовый концепт: асимметричный камень с гранями, одна сторона светится. Шесть вариаций исполнения —
+  разная плотность граней, толщина штриха, обработка янтарной части. Каждая показана в трёх размерах:
+  большой (стор-листинг), средний (96px скруглённая иконка) и маленький (56px, как на хоумскрине).
+</p>
+
+<div class="grid">
+
+  <!-- R1: Original V3 baseline -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">R1 — исходный</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.4"/>
+          <line x1="18" y1="50" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+          <line x1="22" y1="32" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+        </svg>
+      </div>
+      <div class="display-medium">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.4"/>
+          <line x1="18" y1="50" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">8 граней · 3 внутренние линии · правая половина 40%</div>
+  </div>
+
+  <!-- R2: Cleaner — fewer internal lines, brighter fill -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">R2 — спокойнее</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.55"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="22" y1="32" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-medium">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.55"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">8 граней · 2 линии · правая половина 55% — чище, считывается быстрее</div>
+  </div>
+
+  <!-- R3: More crystalline — radial lines from focal point -->
+  <div class="variant recommended">
+    <div class="variant-header">
+      <span class="variant-label">R3 — кристаллический</span>
+      <span class="rec-badge">мой выбор</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.5"/>
+          <line x1="48" y1="48" x2="35" y2="22" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="65" y2="18" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="25" y2="72" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="18" y2="50" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="22" y2="32" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-medium">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.5"/>
+          <line x1="48" y1="48" x2="65" y2="18" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="48" y1="48" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.55"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">грани сходятся в одной точке (как реальный огранённый камень) · 50%</div>
+  </div>
+
+  <!-- R4: Single solid facet, rest outlined -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">R4 — один яркий скол</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 50,50"
+                   fill="#C8923A"/>
+          <line x1="50" y1="50" x2="35" y2="22" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="50" y1="50" x2="65" y2="18" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="50" y1="50" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="50" y1="50" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="50" y1="50" x2="18" y2="50" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-medium">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 50,50"
+                   fill="#C8923A"/>
+          <line x1="50" y1="50" x2="65" y2="18" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="50" y1="50" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+          <polygon points="65,18 82,38 50,50"
+                   fill="#C8923A"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">одна треугольная грань — сплошной янтарь · остальное контурно</div>
+  </div>
+
+  <!-- R5: Bolder, thicker stroke -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">R5 — толще линия</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="3.5" stroke-linejoin="round"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.5"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1.5" stroke-opacity="0.35"/>
+          <line x1="22" y1="32" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1.5" stroke-opacity="0.35"/>
+        </svg>
+      </div>
+      <div class="display-medium">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="3.5" stroke-linejoin="round"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="4" stroke-linejoin="round"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">плотный контур · скруглённые стыки · лучше читается на маленьких размерах</div>
+  </div>
+
+  <!-- R6: Light fill on whole, brighter on lit half -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">R6 — с заливкой</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="#F0EAD6" fill-opacity="0.07" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.55"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="22" y1="32" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.35"/>
+        </svg>
+      </div>
+      <div class="display-medium">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="#F0EAD6" fill-opacity="0.07" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.55"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.35"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="#F0EAD6" fill-opacity="0.1" stroke="#F0EAD6" stroke-width="2.5"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.65"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">всё тело камня слегка подсвечено · правая половина — насыщенный янтарь</div>
+  </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!--                 ПРЕВЬЮ С ВОРДМАРКОМ                       -->
+<!-- ====================================================== -->
+<div class="wordmark-section">
+  <h2>с вордмарком</h2>
+  <div class="wordmark-combo">
+    <svg viewBox="0 0 100 100">
+      <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+               fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+      <polygon points="65,18 82,38 78,68 55,82"
+               fill="#C8923A" fill-opacity="0.55"/>
+      <line x1="48" y1="48" x2="65" y2="18" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+      <line x1="48" y1="48" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+      <line x1="48" y1="48" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+      <line x1="48" y1="48" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    </svg>
+    <div class="wordmark">Г Р А Н Ь</div>
+    <div class="tagline">меняй себя действием</div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!--               ПРЕВЬЮ НА ХОУМСКРИНЕ                        -->
+<!-- ====================================================== -->
+<div class="home-mockup">
+  <h2>иконка среди других приложений</h2>
+  <div class="home-icons">
+    <div class="home-icon">
+      <div class="home-icon-bg" style="background: #25a4e1;">
+        <span style="font-size: 32px; color: white;">💬</span>
+      </div>
+      <div class="home-icon-label">Чаты</div>
+    </div>
+    <div class="home-icon">
+      <div class="home-icon-bg" style="background: #0A0A0F; border: 1px solid var(--border);">
+        <svg viewBox="0 0 100 100" style="width: 60%; height: 60%;">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="3"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.55"/>
+        </svg>
+      </div>
+      <div class="home-icon-label">Грань</div>
+    </div>
+    <div class="home-icon">
+      <div class="home-icon-bg" style="background: linear-gradient(135deg, #FE5F75, #FC9842);">
+        <span style="font-size: 32px; color: white;">📷</span>
+      </div>
+      <div class="home-icon-label">Камера</div>
+    </div>
+    <div class="home-icon">
+      <div class="home-icon-bg" style="background: #1DB954;">
+        <span style="font-size: 32px; color: white;">♫</span>
+      </div>
+      <div class="home-icon-label">Музыка</div>
+    </div>
+    <div class="home-icon">
+      <div class="home-icon-bg" style="background: #FF6B35;">
+        <span style="font-size: 32px; color: white;">🍔</span>
+      </div>
+      <div class="home-icon-label">Еда</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

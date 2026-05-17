@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>ГРАНЬ — лого исследование</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --bg-elev: #13131A;
+    --text: #F0EAD6;
+    --text-dim: rgba(240, 234, 214, 0.55);
+    --text-faint: rgba(240, 234, 214, 0.28);
+    --accent: #C8923A;
+    --border: rgba(240, 234, 214, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', serif;
+    padding: 48px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-weight: 600;
+    font-size: 36px;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 16px;
+    margin-bottom: 56px;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 48px 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .variant {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 32px;
+  }
+  .variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .variant-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+  }
+  .variant-desc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: lowercase;
+  }
+  .variant-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 32px 0;
+    gap: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .display-large {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .display-small {
+    width: 64px;
+    height: 64px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+  .display-small svg {
+    width: 100%;
+    height: 100%;
+  }
+  .display-large svg {
+    width: 100%;
+    height: 100%;
+  }
+  .variant-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: center;
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+  .wordmark-preview {
+    margin-top: 80px;
+    padding: 48px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 48px;
+    letter-spacing: 12px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: lowercase;
+  }
+</style>
+</head>
+<body>
+
+<h1>ГРАНЬ</h1>
+<p class="subtitle">
+  Исследование логотипа. Два направления: монолитная буква Г (A) и асимметричный кристалл (V).
+  Каждый вариант показан в большом и иконочном размере на тёмном фоне (как будет в стор-листинге и на хоумскрине телефона).
+</p>
+
+<!-- ====================================================== -->
+<!--                  НАПРАВЛЕНИЕ A: Г                        -->
+<!-- ====================================================== -->
+<h2>A — Г как монолитный знак</h2>
+<div class="grid">
+
+  <!-- A1: Bold solid Г with corner amber notch -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">A1</span>
+      <span class="variant-desc">плотная · точка в углу</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="14" fill="#F0EAD6"/>
+          <rect x="20" y="20" width="14" height="60" fill="#F0EAD6"/>
+          <rect x="38" y="38" width="6" height="6" fill="#C8923A"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="14" fill="#F0EAD6"/>
+          <rect x="20" y="20" width="14" height="60" fill="#F0EAD6"/>
+          <rect x="38" y="38" width="6" height="6" fill="#C8923A"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">плотная гарнитура · акцент-квадрат у внутреннего угла</div>
+  </div>
+
+  <!-- A2: Bold Г with amber inner edge line -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">A2</span>
+      <span class="variant-desc">плотная · линия по граням</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="14" fill="#F0EAD6"/>
+          <rect x="20" y="20" width="14" height="60" fill="#F0EAD6"/>
+          <line x1="34" y1="34" x2="80" y2="34" stroke="#C8923A" stroke-width="2"/>
+          <line x1="34" y1="34" x2="34" y2="80" stroke="#C8923A" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="14" fill="#F0EAD6"/>
+          <rect x="20" y="20" width="14" height="60" fill="#F0EAD6"/>
+          <line x1="34" y1="34" x2="80" y2="34" stroke="#C8923A" stroke-width="2"/>
+          <line x1="34" y1="34" x2="34" y2="80" stroke="#C8923A" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">янтарная линия трассирует внутренние грани буквы</div>
+  </div>
+
+  <!-- A3: Slim elegant Г with amber dot at corner -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">A3</span>
+      <span class="variant-desc">тонкая · точка</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <rect x="22" y="18" width="56" height="8" fill="#F0EAD6"/>
+          <rect x="22" y="18" width="8" height="64" fill="#F0EAD6"/>
+          <circle cx="34" cy="30" r="3" fill="#C8923A"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <rect x="22" y="18" width="56" height="8" fill="#F0EAD6"/>
+          <rect x="22" y="18" width="8" height="64" fill="#F0EAD6"/>
+          <circle cx="34" cy="30" r="3" fill="#C8923A"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">архитектурная Г · одна янтарная точка как «искра грани»</div>
+  </div>
+
+  <!-- A4: Bold Г with amber cap on horizontal end -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">A4</span>
+      <span class="variant-desc">плотная · янтарная грань сверху</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="50" height="14" fill="#F0EAD6"/>
+          <rect x="70" y="20" width="10" height="14" fill="#C8923A"/>
+          <rect x="20" y="20" width="14" height="60" fill="#F0EAD6"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="50" height="14" fill="#F0EAD6"/>
+          <rect x="70" y="20" width="10" height="14" fill="#C8923A"/>
+          <rect x="20" y="20" width="14" height="60" fill="#F0EAD6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">правый край горизонтальной плиты — янтарный «огрань»</div>
+  </div>
+
+  <!-- A5: Angled Г, italic-like with shadow -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">A5</span>
+      <span class="variant-desc">плотная · разделённая грань</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="7" fill="#F0EAD6"/>
+          <rect x="20" y="27" width="60" height="7" fill="#C8923A"/>
+          <rect x="20" y="34" width="14" height="46" fill="#F0EAD6"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="7" fill="#F0EAD6"/>
+          <rect x="20" y="27" width="60" height="7" fill="#C8923A"/>
+          <rect x="20" y="34" width="14" height="46" fill="#F0EAD6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">верхняя плита расщеплена пополам · нижняя половина янтарная</div>
+  </div>
+
+  <!-- A6: Bold Г as inverted L shape with stroke -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">A6</span>
+      <span class="variant-desc">контурная · тонкая</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <path d="M 22 22 L 78 22 L 78 32 L 32 32 L 32 78 L 22 78 Z"
+                fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+          <line x1="32" y1="32" x2="78" y2="32" stroke="#C8923A" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <path d="M 22 22 L 78 22 L 78 32 L 32 32 L 32 78 L 22 78 Z"
+                fill="none" stroke="#F0EAD6" stroke-width="2.5"/>
+          <line x1="32" y1="32" x2="78" y2="32" stroke="#C8923A" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">контур буквы как огранённый камень · внутренняя грань — янтарная</div>
+  </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!--           НАПРАВЛЕНИЕ V: асимметричный кристалл           -->
+<!-- ====================================================== -->
+<h2>V — асимметричный кристалл</h2>
+<div class="grid">
+
+  <!-- V1: Irregular polygon, one facet amber -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">V1</span>
+      <span class="variant-desc">неправильный шестигранник</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="38,15 72,22 85,52 65,85 30,80 14,45"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="38,15 72,22 85,52"
+                   fill="#C8923A" fill-opacity="0.5"/>
+          <line x1="14" y1="45" x2="85" y2="52" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="38" y1="15" x2="65" y2="85" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="38,15 72,22 85,52 65,85 30,80 14,45"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="38,15 72,22 85,52"
+                   fill="#C8923A" fill-opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">контур камня с внутренними гранями · одна верхняя сторона светится</div>
+  </div>
+
+  <!-- V2: Vertical shard / obelisk -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">V2</span>
+      <span class="variant-desc">осколок · вертикальный</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,10 70,30 65,85 35,80 30,35"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="50,10 70,30 65,85"
+                   fill="#C8923A" fill-opacity="0.45"/>
+          <line x1="50" y1="10" x2="50" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,10 70,30 65,85 35,80 30,35"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="50,10 70,30 65,85"
+                   fill="#C8923A" fill-opacity="0.45"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">вертикальный шард · правая огранённая половина — янтарная</div>
+  </div>
+
+  <!-- V3: Compact pebble-like cut stone -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">V3</span>
+      <span class="variant-desc">галька · ограненная</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.4"/>
+          <line x1="18" y1="50" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+          <line x1="35" y1="22" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+          <line x1="22" y1="32" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.25"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="65,18 82,38 78,68 55,82"
+                   fill="#C8923A" fill-opacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">округлый камень с множеством граней · правая половина светится</div>
+  </div>
+
+  <!-- V4: Sharp angular dual-plane -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">V4</span>
+      <span class="variant-desc">скол · двухплоскостной</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,12 88,42 50,88 12,42"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="50,12 88,42 50,88"
+                   fill="#C8923A" fill-opacity="0.5"/>
+          <line x1="50" y1="12" x2="50" y2="88" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,12 88,42 50,88 12,42"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="50,12 88,42 50,88"
+                   fill="#C8923A" fill-opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">ромб разделённый осью · правая грань — янтарная</div>
+  </div>
+
+  <!-- V5: Crystal with mountain-like top -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">V5</span>
+      <span class="variant-desc">гора · асимметричная</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="40,18 58,32 78,22 88,55 70,82 22,78 12,48 28,28"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="40,18 58,32 78,22 88,55"
+                   fill="#C8923A" fill-opacity="0.45"/>
+          <line x1="40" y1="18" x2="70" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+          <line x1="58" y1="32" x2="88" y2="55" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="40,18 58,32 78,22 88,55 70,82 22,78 12,48 28,28"
+                   fill="none" stroke="#F0EAD6" stroke-width="2"/>
+          <polygon points="40,18 58,32 78,22 88,55"
+                   fill="#C8923A" fill-opacity="0.45"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">кристалл с зубчатым верхом · верхняя грань — янтарная</div>
+  </div>
+
+  <!-- V6: Single bright facet, mostly outline -->
+  <div class="variant">
+    <div class="variant-header">
+      <span class="variant-label">V6</span>
+      <span class="variant-desc">одна грань · фокус</span>
+    </div>
+    <div class="variant-display">
+      <div class="display-large">
+        <svg viewBox="0 0 100 100">
+          <polygon points="38,18 70,15 82,48 60,82 28,75 18,42"
+                   fill="none" stroke="#F0EAD6" stroke-width="1.5" stroke-opacity="0.4"/>
+          <polygon points="38,18 70,15 82,48"
+                   fill="#C8923A"/>
+        </svg>
+      </div>
+      <div class="display-small">
+        <svg viewBox="0 0 100 100">
+          <polygon points="38,18 70,15 82,48 60,82 28,75 18,42"
+                   fill="none" stroke="#F0EAD6" stroke-width="1.5" stroke-opacity="0.4"/>
+          <polygon points="38,18 70,15 82,48"
+                   fill="#C8923A"/>
+        </svg>
+      </div>
+    </div>
+    <div class="variant-meta">контур камня приглушён · одна грань ярко горит сплошным янтарём</div>
+  </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!--                  ПОЛНЫЙ ВОРДМАРК                          -->
+<!-- ====================================================== -->
+<div class="wordmark-preview">
+  <div class="wordmark">Г Р А Н Ь</div>
+  <div class="tagline">меняй себя действием</div>
+</div>
+
+</body>
+</html>

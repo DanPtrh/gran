@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- ГРАНЬ logo · R3 кристаллический · логотип на прозрачном фоне -->
+  <g>
+    <polygon points="35,22 65,18 82,38 78,68 55,82 25,72 18,50 22,32"
+             fill="none" stroke="#F0EAD6" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon points="65,18 82,38 78,68 55,82"
+             fill="#C8923A" fill-opacity="0.55"/>
+    <line x1="48" y1="48" x2="65" y2="18" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="82" y2="38" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="78" y2="68" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="55" y2="82" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="35" y2="22" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="25" y2="72" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="18" y2="50" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+    <line x1="48" y1="48" x2="22" y2="32" stroke="#F0EAD6" stroke-width="1" stroke-opacity="0.3"/>
+  </g>
+</svg>
