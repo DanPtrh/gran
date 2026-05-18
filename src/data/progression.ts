@@ -1,12 +1,12 @@
 import { Completion, SkillId, SkillProgress, Task } from '../types';
 import { getTaskById, getTasksByLevel } from './tasks';
 
-export const LEVEL_RULES: Record<number, { needed: number; minAvgDiscomfort: number }> = {
-  1: { needed: 3, minAvgDiscomfort: 3 },
-  2: { needed: 4, minAvgDiscomfort: 4 },
-  3: { needed: 4, minAvgDiscomfort: 5 },
-  4: { needed: 4, minAvgDiscomfort: 5 },
-  5: { needed: 4, minAvgDiscomfort: 5 },
+export const LEVEL_RULES: Record<number, { needed: number }> = {
+  1: { needed: 3 },
+  2: { needed: 4 },
+  3: { needed: 4 },
+  4: { needed: 4 },
+  5: { needed: 4 },
 };
 
 export const MAX_DEFERRALS = 2;
@@ -37,17 +37,14 @@ export function pickTaskForToday(
 
   const onLevel = skillCompletions.filter((c) => taskLevel(c.taskId) === progress.currentLevel);
   const everDoneOnLevel = new Set(onLevel.map((c) => c.taskId));
-  const freshOnLevel = pool.filter((t) => !everDoneOnLevel.has(t.id));
-
-  if (onLevel.length === 0) {
-    const v1 = pool.find((t) => t.variantOrder === 1);
-    if (v1) return v1;
-  }
+  const freshOnLevel = pool
+    .filter((t) => !everDoneOnLevel.has(t.id))
+    .sort((a, b) => a.variantOrder - b.variantOrder);
 
   if (freshOnLevel.length > 0) {
-    return freshOnLevel[Math.floor(Math.random() * freshOnLevel.length)];
+    return freshOnLevel[0];
   }
-  return pool[Math.floor(Math.random() * pool.length)];
+  return null;
 }
 
 export function shouldLevelUp(
@@ -60,9 +57,7 @@ export function shouldLevelUp(
   const onLevel = completionsOf(skillId, completions).filter(
     (c) => taskLevel(c.taskId) === progress.currentLevel,
   );
-  if (onLevel.length < rule.needed) return false;
-  const avg = onLevel.reduce((s, c) => s + c.discomfortScore, 0) / onLevel.length;
-  return avg >= rule.minAvgDiscomfort;
+  return onLevel.length >= rule.needed;
 }
 
 export function applyCompletion(
