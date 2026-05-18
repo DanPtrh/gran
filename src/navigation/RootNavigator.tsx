@@ -7,6 +7,9 @@ import { ReflectionScreen } from '../screens/ReflectionScreen';
 import { AvatarMessageScreen } from '../screens/AvatarMessageScreen';
 import { LevelUpScreen } from '../screens/LevelUpScreen';
 import { PathCompletedScreen } from '../screens/PathCompletedScreen';
+import { JournalEntryScreen } from '../screens/JournalEntryScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import { FeedbackScreen } from '../screens/FeedbackScreen';
 import { TabNavigator } from './TabNavigator';
 import { loadAvatar } from '../storage/avatar';
 import { colors } from '../theme/colors';
@@ -67,6 +70,9 @@ export function RootNavigator() {
           component={PathCompletedScreen}
           options={{ gestureEnabled: false }}
         />
+        <Stack.Screen name="JournalEntry" component={JournalEntryScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Feedback" component={FeedbackScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

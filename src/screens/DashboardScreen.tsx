@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { Settings as SettingsIcon } from 'lucide-react-native';
 import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
 import { Button } from '../components/Button';
@@ -96,8 +97,15 @@ export function DashboardScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll edges={['top']}>
       <Animated.View entering={FadeIn.duration(500)} style={styles.header}>
+        <Pressable
+          onPress={() => navigation.navigate('Settings')}
+          hitSlop={16}
+          style={styles.settingsBtn}
+        >
+          <SettingsIcon size={20} color={colors.textDim} />
+        </Pressable>
         <Text variant="monoSm">{skill?.name}</Text>
         <Text variant="displayLg" style={styles.name}>{avatar.name}</Text>
         <Text variant="monoSm" style={styles.dayCounter}>
@@ -187,6 +195,13 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 16,
     marginBottom: 32,
+  },
+  settingsBtn: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 8,
+    zIndex: 1,
   },
   name: {
     marginTop: 4,

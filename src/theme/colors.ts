@@ -8,4 +8,5 @@ export const colors = {
   accentDim: 'rgba(200, 146, 58, 0.35)',
   border: 'rgba(240, 234, 214, 0.08)',
   borderStrong: 'rgba(240, 234, 214, 0.16)',
+  danger: '#A85B5B',
 } as const;

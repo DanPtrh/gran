@@ -1,4 +1,4 @@
-import { Task, SkillId } from '../types';
+import { Task, SkillId, Completion } from '../types';
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { TabParamList } from './TabNavigator';
 
@@ -10,4 +10,7 @@ export type RootStackParamList = {
   AvatarMessage: { message: string; level: number };
   LevelUp: { newLevel: number; avatarMessage: string };
   PathCompleted: { skillId: SkillId };
+  JournalEntry: { completionId: string };
+  Settings: undefined;
+  Feedback: undefined;
 };
