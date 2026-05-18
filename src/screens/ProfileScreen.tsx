@@ -7,7 +7,7 @@ import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
 import { Button } from '../components/Button';
 import { ProgressOrb } from '../components/ProgressOrb';
-import { LevelProgress } from '../components/LevelProgress';
+import { PathStones } from '../components/PathStones';
 import { Logo } from '../components/Logo';
 import { colors } from '../theme/colors';
 import { Avatar, Completion, ProgressMap, Skill, SkillId, SkillProgress } from '../types';
@@ -110,12 +110,17 @@ export function ProfileScreen() {
           {getSkill(avatar.activeSkillId)?.name}
         </Text>
         {activeProgress && (
-          <LevelProgress
-            current={activeProgress.levelProgress}
-            needed={rule.needed}
-            label={activeLevel < 5
-              ? `до уровня ${ROMAN[activeLevel + 1]}`
-              : 'последний уровень'}
+          <PathStones
+            currentLevel={activeProgress.currentLevel}
+            levelProgressFrac={progressFrac}
+            pathCompleted={!!activeProgress.pathCompletedAt}
+            hint={
+              activeProgress.pathCompletedAt
+                ? 'путь пройден'
+                : activeLevel < 5
+                  ? `${activeProgress.levelProgress} из ${rule.needed} · до уровня ${ROMAN[activeLevel + 1]}`
+                  : `${activeProgress.levelProgress} из ${rule.needed} · последний уровень`
+            }
           />
         )}
       </Animated.View>

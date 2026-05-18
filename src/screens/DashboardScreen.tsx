@@ -7,7 +7,7 @@ import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
 import { Button } from '../components/Button';
 import { ProgressOrb } from '../components/ProgressOrb';
-import { LevelProgress } from '../components/LevelProgress';
+import { PathStones } from '../components/PathStones';
 import { colors } from '../theme/colors';
 import { sizes } from '../theme/typography';
 import { Avatar, Task, Completion, SkillProgress } from '../types';
@@ -107,12 +107,17 @@ export function DashboardScreen() {
 
       <Animated.View entering={FadeIn.delay(150).duration(700)} style={styles.orbWrap}>
         <ProgressOrb level={progress.currentLevel} progress={progressFrac} />
-        <LevelProgress
-          current={progress.levelProgress}
-          needed={rule.needed}
-          label={progress.currentLevel < 5
-            ? `до уровня ${ROMAN[progress.currentLevel + 1]}`
-            : 'последний уровень'}
+        <PathStones
+          currentLevel={progress.currentLevel}
+          levelProgressFrac={progressFrac}
+          pathCompleted={!!progress.pathCompletedAt}
+          hint={
+            progress.pathCompletedAt
+              ? 'путь пройден'
+              : progress.currentLevel < 5
+                ? `${progress.levelProgress} из ${rule.needed} · до уровня ${ROMAN[progress.currentLevel + 1]}`
+                : `${progress.levelProgress} из ${rule.needed} · последний уровень`
+          }
         />
       </Animated.View>
 
