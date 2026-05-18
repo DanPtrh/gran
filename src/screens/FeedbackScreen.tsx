@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Alert, Keyboard } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, TextInput, Alert, Keyboard, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
@@ -10,17 +10,26 @@ import { Button } from '../components/Button';
 import { colors } from '../theme/colors';
 import { fonts, sizes } from '../theme/typography';
 import { moderate } from '../data/moderation';
+import { loadAvatar } from '../storage/avatar';
 import { RootStackParamList } from '../navigation/types';
+import appJson from '../../app.json';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const MIN_LEN = 10;
 const MAX_LEN = 1000;
+const FEEDBACK_API_URL = 'https://gran-api.vercel.app/api/feedback';
+const APP_VERSION = appJson.expo.version;
 
 export function FeedbackScreen() {
   const navigation = useNavigation<Nav>();
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [avatarName, setAvatarName] = useState<string | undefined>();
+
+  useEffect(() => {
+    loadAvatar().then((a) => setAvatarName(a?.name));
+  }, []);
 
   const trimmed = message.trim();
   const check = moderate(message);
@@ -34,16 +43,44 @@ export function FeedbackScreen() {
     }
     Keyboard.dismiss();
     setSending(true);
-    // TODO: подключить отправку (Supabase / собственный endpoint).
-    // Пока сообщение никуда не уходит, показываем заглушку.
-    setTimeout(() => {
-      setSending(false);
+
+    try {
+      const res = await fetch(FEEDBACK_API_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          message: trimmed,
+          appVersion: APP_VERSION,
+          platform: Platform.OS,
+          avatarName,
+        }),
+      });
+
+      if (res.status === 429) {
+        Alert.alert('Слишком часто', 'Сделай небольшую паузу и попробуй ещё раз через минуту.');
+        return;
+      }
+      if (!res.ok) {
+        Alert.alert(
+          'Не удалось отправить',
+          'Сервер вернул ошибку. Попробуй позже или напиши на app.gransup@gmail.com.',
+        );
+        return;
+      }
+
       Alert.alert(
         'Спасибо',
-        'Отправка обратной связи ещё не подключена — она появится в одном из ближайших обновлений.',
-        [{ text: 'Понятно', onPress: () => navigation.goBack() }],
+        'Сообщение отправлено. Автор читает каждое — отвечу, если будет что добавить.',
+        [{ text: 'Хорошо', onPress: () => navigation.goBack() }],
       );
-    }, 400);
+    } catch {
+      Alert.alert(
+        'Нет связи',
+        'Проверь интернет и попробуй ещё раз. Если не получается — напиши на app.gransup@gmail.com.',
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
