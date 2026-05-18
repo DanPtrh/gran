@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -11,7 +11,6 @@ import { JournalEntryScreen } from '../screens/JournalEntryScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { FeedbackScreen } from '../screens/FeedbackScreen';
 import { TabNavigator } from './TabNavigator';
-import { loadAvatar } from '../storage/avatar';
 import { colors } from '../theme/colors';
 import { RootStackParamList } from './types';
 
@@ -30,17 +29,11 @@ const navTheme = {
   },
 };
 
-export function RootNavigator() {
-  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
+interface Props {
+  initialRoute: keyof RootStackParamList;
+}
 
-  useEffect(() => {
-    loadAvatar().then((a) => {
-      setInitialRoute(a ? 'Main' : 'Onboarding');
-    });
-  }, []);
-
-  if (!initialRoute) return null;
-
+export function RootNavigator({ initialRoute }: Props) {
   return (
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator
