@@ -1,0 +1,6 @@
+title: ГРАНЬ
+description: Самопрограммирование через действие
+theme: jekyll-theme-minimal
+lang: ru
+baseurl: /gran
+permalink: /:title/
