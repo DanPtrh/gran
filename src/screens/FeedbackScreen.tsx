@@ -18,12 +18,15 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const MIN_LEN = 10;
 const MAX_LEN = 1000;
+const MAX_EMAIL_LEN = 254;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FEEDBACK_API_URL = 'https://gran-api.vercel.app/api/feedback';
 const APP_VERSION = appJson.expo.version;
 
 export function FeedbackScreen() {
   const navigation = useNavigation<Nav>();
   const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [avatarName, setAvatarName] = useState<string | undefined>();
 
@@ -32,13 +35,19 @@ export function FeedbackScreen() {
   }, []);
 
   const trimmed = message.trim();
+  const emailTrimmed = email.trim();
+  const emailValid = emailTrimmed.length === 0 || EMAIL_RE.test(emailTrimmed);
   const check = moderate(message);
-  const canSend = trimmed.length >= MIN_LEN && check.ok && !sending;
+  const canSend = trimmed.length >= MIN_LEN && check.ok && emailValid && !sending;
 
   async function send() {
     if (sending || trimmed.length < MIN_LEN) return;
     if (!check.ok) {
       Alert.alert('Так не получится', check.message ?? 'Текст не прошёл проверку.');
+      return;
+    }
+    if (!emailValid) {
+      Alert.alert('Email не похож на email', 'Проверь формат или оставь поле пустым.');
       return;
     }
     Keyboard.dismiss();
@@ -50,6 +59,7 @@ export function FeedbackScreen() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           message: trimmed,
+          email: emailTrimmed || undefined,
           appVersion: APP_VERSION,
           platform: Platform.OS,
           avatarName,
@@ -117,7 +127,27 @@ export function FeedbackScreen() {
         </View>
       </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(220).duration(500)} style={styles.cta}>
+      <Animated.View entering={FadeInDown.delay(180).duration(500)} style={styles.field}>
+        <Text variant="label" style={styles.emailLabel}>email для ответа · по желанию</Text>
+        <TextInput
+          value={email}
+          onChangeText={(v) => setEmail(v.slice(0, MAX_EMAIL_LEN))}
+          placeholder="ты@example.com"
+          placeholderTextColor={colors.textFaint}
+          style={[styles.emailInput, !emailValid && styles.inputInvalid]}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          inputMode="email"
+        />
+        <Text variant="monoSm" style={styles.emailHint}>
+          {emailValid
+            ? 'оставь, если хочешь, чтобы автор смог ответить'
+            : 'не похоже на email — проверь формат'}
+        </Text>
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(260).duration(500)} style={styles.cta}>
         <Button
           label={sending ? 'Отправляется…' : 'Отправить'}
           onPress={send}
@@ -155,6 +185,25 @@ const styles = StyleSheet.create({
   },
   inputInvalid: {
     borderColor: colors.danger,
+  },
+  emailLabel: {
+    marginBottom: 10,
+  },
+  emailInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.backgroundElevated,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    color: colors.text,
+    fontFamily: fonts.mono,
+    fontSize: sizes.base,
+  },
+  emailHint: {
+    color: colors.textDim,
+    marginTop: 8,
+    textTransform: 'none',
+    letterSpacing: 0.3,
   },
   counterRow: {
     marginTop: 8,
