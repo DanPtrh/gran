@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, StyleSheet, Pressable, Alert, Switch } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Pressable, Alert, Switch, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, ChevronUp, ChevronDown } from 'lucide-react-native';
+import * as Notifications from 'expo-notifications';
 import { Screen } from '../components/Screen';
 import { Header } from '../components/Header';
 import { Text } from '../components/Text';
@@ -11,14 +12,92 @@ import { Button } from '../components/Button';
 import { colors } from '../theme/colors';
 import { RootStackParamList } from '../navigation/types';
 import { clearAll } from '../storage/avatar';
+import {
+  loadNotificationSettings,
+  saveNotificationSettings,
+  type NotificationSettings,
+  DEFAULT_SETTINGS,
+} from '../storage/notifications';
+import {
+  requestNotificationPermission,
+  scheduleDailyReminder,
+  cancelDailyReminder,
+} from '../lib/notifications';
 import appJson from '../../app.json';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const VERSION = appJson.expo.version;
+const MINUTE_STEP = 5;
+
+function pad(n: number): string {
+  return n.toString().padStart(2, '0');
+}
 
 export function SettingsScreen() {
   const navigation = useNavigation<Nav>();
+  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const s = await loadNotificationSettings();
+      if (s.enabled) {
+        const perm = await Notifications.getPermissionsAsync();
+        if (!perm.granted) {
+          const fixed = { ...s, enabled: false };
+          await saveNotificationSettings(fixed);
+          await cancelDailyReminder();
+          setSettings(fixed);
+          setLoaded(true);
+          return;
+        }
+      }
+      setSettings(s);
+      setLoaded(true);
+    })();
+  }, []);
+
+  async function applySettings(next: NotificationSettings) {
+    setSettings(next);
+    await saveNotificationSettings(next);
+    if (next.enabled) {
+      await scheduleDailyReminder(next.hour, next.minute);
+    } else {
+      await cancelDailyReminder();
+    }
+  }
+
+  async function onToggle(value: boolean) {
+    if (!value) {
+      await applySettings({ ...settings, enabled: false });
+      return;
+    }
+    const granted = await requestNotificationPermission();
+    if (!granted) {
+      Alert.alert(
+        'Нужно разрешение',
+        'Разреши Грани присылать уведомления в настройках системы — без этого напоминание не сработает.',
+        [
+          { text: 'Отмена', style: 'cancel' },
+          { text: 'Открыть настройки', onPress: () => Linking.openSettings() },
+        ],
+      );
+      return;
+    }
+    await applySettings({ ...settings, enabled: true });
+  }
+
+  async function bumpHour(delta: number) {
+    const hour = (settings.hour + delta + 24) % 24;
+    await applySettings({ ...settings, hour });
+  }
+
+  async function bumpMinute(delta: number) {
+    const total = settings.minute + delta * MINUTE_STEP;
+    const minute = ((total % 60) + 60) % 60;
+    await applySettings({ ...settings, minute });
+  }
 
   function comingSoon(title: string) {
     Alert.alert(title, 'Скоро.');
@@ -34,6 +113,8 @@ export function SettingsScreen() {
           text: 'Удалить',
           style: 'destructive',
           onPress: async () => {
+            await cancelDailyReminder();
+            await saveNotificationSettings(DEFAULT_SETTINGS);
             await clearAll();
             const root = navigation.getParent() ?? navigation;
             root.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
@@ -50,26 +131,29 @@ export function SettingsScreen() {
       <Animated.View entering={FadeIn.duration(400)} style={styles.section}>
         <Text variant="label" style={styles.sectionTitle}>уведомления</Text>
 
-        <View style={[styles.row, styles.rowDisabled]}>
+        <View style={styles.row}>
           <View style={styles.rowBody}>
             <Text variant="body" style={styles.rowTitle}>напоминать о задании</Text>
-            <Text variant="monoSm" style={styles.rowHint}>скоро · push для android</Text>
+            <Text variant="monoSm" style={styles.rowHint}>
+              {settings.enabled ? `каждый день в ${pad(settings.hour)}:${pad(settings.minute)}` : 'выключено'}
+            </Text>
           </View>
           <Switch
-            value={false}
-            disabled
+            value={settings.enabled}
+            disabled={!loaded}
+            onValueChange={onToggle}
             trackColor={{ false: colors.border, true: colors.accent }}
-            thumbColor={colors.textFaint}
+            thumbColor={settings.enabled ? colors.text : colors.textFaint}
           />
         </View>
 
-        <View style={[styles.row, styles.rowDisabled]}>
-          <View style={styles.rowBody}>
-            <Text variant="body" style={styles.rowTitle}>время напоминания</Text>
-            <Text variant="monoSm" style={styles.rowHint}>не выбрано</Text>
-          </View>
-          <Text variant="mono" style={styles.rowMutedValue}>—</Text>
-        </View>
+        {settings.enabled && (
+          <Animated.View entering={FadeIn.duration(280)} style={styles.pickerBlock}>
+            <TimeColumn label="часы" value={settings.hour} onUp={() => bumpHour(1)} onDown={() => bumpHour(-1)} />
+            <Text variant="mono" style={styles.pickerSeparator}>:</Text>
+            <TimeColumn label="минуты" value={settings.minute} onUp={() => bumpMinute(1)} onDown={() => bumpMinute(-1)} />
+          </Animated.View>
+        )}
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(120).duration(500)} style={styles.section}>
@@ -114,6 +198,31 @@ export function SettingsScreen() {
   );
 }
 
+function TimeColumn({
+  label,
+  value,
+  onUp,
+  onDown,
+}: {
+  label: string;
+  value: number;
+  onUp: () => void;
+  onDown: () => void;
+}) {
+  return (
+    <View style={styles.timeColumn}>
+      <Pressable onPress={onUp} hitSlop={12} style={styles.timeArrow}>
+        <ChevronUp size={20} color={colors.textDim} />
+      </Pressable>
+      <Text variant="mono" style={styles.timeValue}>{pad(value)}</Text>
+      <Pressable onPress={onDown} hitSlop={12} style={styles.timeArrow}>
+        <ChevronDown size={20} color={colors.textDim} />
+      </Pressable>
+      <Text variant="monoSm" style={styles.timeLabel}>{label}</Text>
+    </View>
+  );
+}
+
 function NavRow({ label, hint, onPress }: { label: string; hint?: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={styles.row}>
@@ -141,9 +250,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
     gap: 16,
   },
-  rowDisabled: {
-    opacity: 0.55,
-  },
   rowBody: {
     flex: 1,
   },
@@ -153,8 +259,34 @@ const styles = StyleSheet.create({
   rowHint: {
     color: colors.textDim,
   },
-  rowMutedValue: {
+  pickerBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+    gap: 24,
+  },
+  pickerSeparator: {
+    fontSize: 32,
     color: colors.textDim,
+    marginTop: -28,
+  },
+  timeColumn: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  timeArrow: {
+    paddingVertical: 4,
+  },
+  timeValue: {
+    fontSize: 32,
+    color: colors.text,
+    minWidth: 56,
+    textAlign: 'center',
+  },
+  timeLabel: {
+    color: colors.textDim,
+    marginTop: 4,
   },
   aboutBlock: {
     marginTop: 16,

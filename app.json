@@ -30,7 +30,15 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/adaptive-icon.png",
+          "color": "#C8923A",
+          "defaultChannel": "default"
+        }
+      ]
     ],
     "extra": {
       "eas": {
