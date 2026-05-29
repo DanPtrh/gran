@@ -17,6 +17,7 @@ import {
   loadProgress,
   setActiveSkill,
 } from '../storage/avatar';
+import { loadPreferences, setConfirmSkillSwitch } from '../storage/preferences';
 import { skills, getSkill } from '../data/skills';
 import { getTaskById } from '../data/tasks';
 import { LEVEL_RULES, computeStreak } from '../data/progression';
@@ -39,8 +40,20 @@ export function ProfileScreen() {
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
+  async function doSwitch(skillId: SkillId) {
+    const next = await setActiveSkill(skillId);
+    setAvatar(next);
+    setProgressMap(await loadProgress());
+    navigation.navigate('Main', { screen: 'Dashboard' });
+  }
+
   async function activate(skillId: SkillId) {
     if (!avatar || skillId === avatar.activeSkillId) return;
+    const prefs = await loadPreferences();
+    if (!prefs.confirmSkillSwitch) {
+      await doSwitch(skillId);
+      return;
+    }
     const skill = getSkill(skillId);
     const hasProgress = !!progressMap[skillId];
     Alert.alert(
@@ -51,13 +64,15 @@ export function ProfileScreen() {
       [
         { text: 'Отмена', style: 'cancel' },
         {
-          text: hasProgress ? 'Вернуться' : 'Начать',
+          text: 'Не спрашивать снова',
           onPress: async () => {
-            const next = await setActiveSkill(skillId);
-            setAvatar(next);
-            setProgressMap(await loadProgress());
-            navigation.navigate('Main', { screen: 'Dashboard' });
+            await setConfirmSkillSwitch(false);
+            await doSwitch(skillId);
           },
+        },
+        {
+          text: hasProgress ? 'Вернуться' : 'Начать',
+          onPress: () => doSwitch(skillId),
         },
       ],
     );

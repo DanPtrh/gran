@@ -19,6 +19,13 @@ import {
   DEFAULT_SETTINGS,
 } from '../storage/notifications';
 import {
+  loadPreferences,
+  setConfirmSkillSwitch,
+  clearPreferences,
+  DEFAULT_PREFERENCES,
+  type Preferences,
+} from '../storage/preferences';
+import {
   requestNotificationPermission,
   scheduleDailyReminder,
   cancelDailyReminder,
@@ -37,11 +44,13 @@ function pad(n: number): string {
 export function SettingsScreen() {
   const navigation = useNavigation<Nav>();
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
+  const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const s = await loadNotificationSettings();
+      const [s, p] = await Promise.all([loadNotificationSettings(), loadPreferences()]);
+      setPrefs(p);
       if (s.enabled) {
         const perm = await Notifications.getPermissionsAsync();
         if (!perm.granted) {
@@ -57,6 +66,11 @@ export function SettingsScreen() {
       setLoaded(true);
     })();
   }, []);
+
+  async function onToggleConfirmSwitch(value: boolean) {
+    setPrefs({ ...prefs, confirmSkillSwitch: value });
+    await setConfirmSkillSwitch(value);
+  }
 
   async function applySettings(next: NotificationSettings) {
     setSettings(next);
@@ -115,6 +129,7 @@ export function SettingsScreen() {
           onPress: async () => {
             await cancelDailyReminder();
             await saveNotificationSettings(DEFAULT_SETTINGS);
+            await clearPreferences();
             await clearAll();
             const root = navigation.getParent() ?? navigation;
             root.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
@@ -156,6 +171,26 @@ export function SettingsScreen() {
         )}
       </Animated.View>
 
+      <Animated.View entering={FadeInDown.delay(80).duration(500)} style={styles.section}>
+        <Text variant="label" style={styles.sectionTitle}>поведение</Text>
+
+        <View style={styles.row}>
+          <View style={styles.rowBody}>
+            <Text variant="body" style={styles.rowTitle}>подтверждать смену навыка</Text>
+            <Text variant="monoSm" style={styles.rowHint}>
+              {prefs.confirmSkillSwitch ? 'спрашивать перед переключением' : 'переключать сразу'}
+            </Text>
+          </View>
+          <Switch
+            value={prefs.confirmSkillSwitch}
+            disabled={!loaded}
+            onValueChange={onToggleConfirmSwitch}
+            trackColor={{ false: colors.border, true: colors.accent }}
+            thumbColor={prefs.confirmSkillSwitch ? colors.text : colors.textFaint}
+          />
+        </View>
+      </Animated.View>
+
       <Animated.View entering={FadeInDown.delay(120).duration(500)} style={styles.section}>
         <Text variant="label" style={styles.sectionTitle}>о приложении</Text>
 
@@ -168,8 +203,9 @@ export function SettingsScreen() {
 
         <View style={styles.aboutBlock}>
           <Text variant="bodyDim" style={styles.aboutText}>
-            Самопрограммирование через действие, не контент. Выбираешь навык — получаешь задания
-            с нарастающим дискомфортом. Меняешься тем, что делаешь.
+            Грань — о том, что человека меняет не чтение, а действие. Выбираешь один навык
+            и каждый день делаешь по одному маленькому шагу — по размеру выполнимый,
+            по весу непривычный.
           </Text>
         </View>
       </Animated.View>
