@@ -19,6 +19,7 @@ import {
 } from '../storage/avatar';
 import { applyCompletion } from '../data/progression';
 import { pickAvatarMessage } from '../data/avatarMessages';
+import { moderate, ModerationResult } from '../data/moderation';
 import { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -33,8 +34,20 @@ export function ReflectionScreen() {
   const [discomfort, setDiscomfort] = useState(5);
   const [saving, setSaving] = useState(false);
 
+  const hardCheck = moderate(hard);
+  const surpriseCheck = moderate(surprise);
+
   async function save() {
     if (saving) return;
+    const firstBad: ModerationResult | null = !hardCheck.ok
+      ? hardCheck
+      : !surpriseCheck.ok
+        ? surpriseCheck
+        : null;
+    if (firstBad) {
+      Alert.alert('Так не получится', firstBad.message ?? 'Текст не прошёл проверку.');
+      return;
+    }
     setSaving(true);
     const completion: Completion = {
       id: `${Date.now()}`,
@@ -103,9 +116,16 @@ export function ReflectionScreen() {
           maxLength={500}
           placeholder="опиши, что зацепилось"
           placeholderTextColor={colors.textFaint}
-          style={styles.input}
+          style={[styles.input, !hardCheck.ok && styles.inputInvalid]}
         />
-        <Text variant="monoSm" style={styles.counter}>{hard.length}/500</Text>
+        <View style={styles.footerRow}>
+          {!hardCheck.ok ? (
+            <Text variant="monoSm" style={styles.errorHint}>{hardCheck.message}</Text>
+          ) : (
+            <View />
+          )}
+          <Text variant="monoSm" style={styles.counter}>{hard.length}/500</Text>
+        </View>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.section}>
@@ -117,9 +137,16 @@ export function ReflectionScreen() {
           maxLength={500}
           placeholder="что оказалось не так, как ты ожидал"
           placeholderTextColor={colors.textFaint}
-          style={styles.input}
+          style={[styles.input, !surpriseCheck.ok && styles.inputInvalid]}
         />
-        <Text variant="monoSm" style={styles.counter}>{surprise.length}/500</Text>
+        <View style={styles.footerRow}>
+          {!surpriseCheck.ok ? (
+            <Text variant="monoSm" style={styles.errorHint}>{surpriseCheck.message}</Text>
+          ) : (
+            <View />
+          )}
+          <Text variant="monoSm" style={styles.counter}>{surprise.length}/500</Text>
+        </View>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(450).duration(600)} style={styles.section}>
@@ -145,7 +172,11 @@ export function ReflectionScreen() {
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(600).duration(600)} style={styles.cta}>
-        <Button label="Сохранить" onPress={save} disabled={saving} />
+        <Button
+          label="Сохранить"
+          onPress={save}
+          disabled={saving || !hardCheck.ok || !surpriseCheck.ok}
+        />
       </Animated.View>
     </Screen>
   );
@@ -175,8 +206,24 @@ const styles = StyleSheet.create({
     minHeight: 60,
     textAlignVertical: 'top',
   },
-  counter: {
+  inputInvalid: {
+    borderBottomColor: colors.danger,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
     marginTop: 4,
+  },
+  errorHint: {
+    color: colors.danger,
+    flex: 1,
+    textTransform: 'none',
+    letterSpacing: 0.3,
+    lineHeight: 16,
+  },
+  counter: {
     textAlign: 'right',
   },
   scale: {

@@ -9,10 +9,13 @@ Self-programming mobile app — пользователь выбирает нав
 - **React Native + Expo SDK 54** (TypeScript, новая архитектура / Fabric)
 - **Reanimated 4** + `react-native-worklets` (плагин в `babel.config.js` обязателен)
 - **React Navigation v7**: Native Stack + Bottom Tabs
-- **Storage**: AsyncStorage (Supabase запланирован на lazy-registration после первого «Выполнено»)
-- **Шрифты**: Fraunces (display) + JetBrains Mono (моно) через `@expo-google-fonts/*`
+- **Storage**: AsyncStorage (Supabase отложен на post-MVP — для lazy-registration / multi-device)
+- **Шрифты**: Fraunces (display) + JetBrains Mono (моно) через `@expo-google-fonts/*` (локальные ttf вбандлены, без сети)
 - **Иконки**: `lucide-react-native`
 - **Хаптика**: `expo-haptics`
+- **Splash**: `expo-splash-screen` (native splash держится до полной готовности: шрифты + loadAvatar)
+- **Сборка**: EAS Build (`eas-cli`, конфиг в `eas.json`)
+- **Бекенд для фидбэка**: отдельный репо [DanPtrh/gran-api](https://github.com/DanPtrh/gran-api) — Vercel Edge Function + Resend, шлёт письма на `app.gransup@gmail.com`
 
 Версии в `package.json` управляются `expo install` — не правь их руками; нужный набор подбирается под текущий SDK.
 
@@ -30,18 +33,27 @@ npm start            # QR для Expo Go на физическом телефо�
 
 ```
 src/
-  theme/         цвета (#0A0A0F / #F0EAD6 / #C8923A) и типографика
-  components/    Text, Button, Screen, Header, ProgressOrb (дышащий орб)
-  screens/       Onboarding, Dashboard, TaskDetail, Reflection, Profile
+  theme/         цвета (#0A0A0F / #F0EAD6 / #C8923A / danger #A85B5B) и типографика
+  components/    Text, Button, Screen (с edges-prop), Header, Logo,
+                 ProgressOrb (дышащий орб), PathStones (5-камневая дорожка)
+  screens/       Onboarding, Dashboard, TaskDetail, Reflection, Profile,
+                 AvatarMessage, LevelUp, PathCompleted,
+                 Settings, Feedback, JournalEntry
   navigation/    RootNavigator (stack) + TabNavigator (Сегодня / Журнал)
-  data/          skills, tasks (75 заданий), progression (правила уровня)
+  data/          skills, tasks (75 заданий), progression (правила уровня),
+                 moderation (фильтр мата/контактов), avatarMessages
   storage/       AsyncStorage обёртки для аватара и журнала
-  types/         TS типы (Skill, Task, Avatar, Completion)
+  types/         TS типы (Skill, Task, Avatar, SkillProgress, Completion)
 ```
 
 Контент-документы (психология + дизайн заданий, читать перед правкой `tasks.ts`):
 - `MVP_REQUIREMENTS.md` — спецификация продукта
 - `CONTENT_SOCIABILITY.md`, `CONTENT_FOCUS.md`, `CONTENT_DISCIPLINE.md`
+
+Публичные документы (`docs/` для GitHub Pages, активируется при первом merge в main):
+- `docs/privacy.md`, `docs/terms.md`, `docs/index.md`, `docs/_config.yml`
+
+Корневые: `README.md` (минимальный публичный), `LICENSE` (All Rights Reserved).
 
 ## Структура навигации
 
@@ -49,11 +61,19 @@ src/
 RootStack
 ├── Onboarding              (без табов, первый запуск)
 ├── Main                    (Tab Navigator)
-│   ├── Dashboard           (главный — карточка задания дня)
-│   └── Profile             (журнал + смена навыка)
-├── TaskDetail              (поверх табов, есть кнопка "назад")
-└── Reflection              (поверх табов, есть "назад" с подтверждением)
+│   ├── Dashboard           (главный — карточка задания дня, шестерёнка → Settings)
+│   └── Profile             (журнал + смена навыка, шестерёнка → Settings, тап по записи → JournalEntry)
+├── TaskDetail              (поверх табов, кнопка "назад")
+├── Reflection              (поверх табов, "назад" с подтверждением)
+├── AvatarMessage           (фейд-экран с репликой аватара после выполнения)
+├── LevelUp                 (экран повышения уровня)
+├── PathCompleted           (финал прохождения навыка)
+├── JournalEntry            (детальный просмотр записи журнала)
+├── Settings                (хаб: уведомления / about / правовое / связь / опасная зона)
+└── Feedback                (форма для письма автору)
 ```
+
+`initialRoute` для RootStack теперь приходит пропсом из `App.tsx` (определяется на основании `loadAvatar`), а не вычисляется внутри. Это сделано чтобы native splash держался до полной готовности.
 
 Из табов в root-стэк сбрасываются через `navigation.getParent()?.reset(...)`. Просто `navigation.reset` сбросит только табы.
 
@@ -65,34 +85,34 @@ RootStack
 
 **Аватар** (Avatar): идентичность — `{ name, activeSkillId, createdAt }`. Один на пользователя, постоянный. Может переключаться между навыками без потери прогресса.
 
-**Прогресс навыка** (SkillProgress): отдельная запись для каждого навыка — `{ currentLevel, levelProgress, deferralsUsed, deferredUntil, startedAt }`. Хранится как `Record<SkillId, SkillProgress>` в `mindprog:progress`. При активации нового навыка создаётся пустой прогресс через `getOrCreateProgress`. При возврате к старому навыку — продолжение с того же уровня.
+**Прогресс навыка** (SkillProgress): отдельная запись для каждого навыка — `{ currentLevel, levelProgress, deferralsUsed, deferredUntil, startedAt, pathCompletedAt }`. Хранится как `Record<SkillId, SkillProgress>` в `mindprog:progress`. При активации нового навыка создаётся пустой прогресс через `getOrCreateProgress`. При возврате к старому навыку — продолжение с того же уровня. `pathCompletedAt` заполняется когда пройден последний уровень — `PathStones` показывает «путь пройден».
 
 **Стрик** — не хранится, считается на лету через `computeStreak(skillId, completions)` из журнала.
 
 **Рефлексия → Completion**: создаётся в `ReflectionScreen.save()`, добавляется в журнал. После этого `applyCompletion(skillId, progress, completions)` возвращает новый `SkillProgress`, который сохраняется через `updateProgress`.
 
-**Смена навыка**: через `setActiveSkill(skillId)` — меняет `avatar.activeSkillId`, прогресс прошлого навыка остаётся в записи. Доступна через тап по неактивной ветке в Профиле. **Полный сброс** — отдельная кнопка «Удалить аватара» внизу профиля, вызывает `clearAll()`.
+**Смена навыка**: через `setActiveSkill(skillId)` — меняет `avatar.activeSkillId`, прогресс прошлого навыка остаётся в записи. Доступна через тап по неактивной ветке в Профиле. **Полный сброс** — в Settings → «опасная зона» → «Удалить аватара», вызывает `clearAll()`.
 
 **Миграция**: `loadAvatar` детектит старый формат (где `skillId` лежал прямо в Avatar) и автоматически конвертирует в новую структуру. Это работает один раз на пользователя.
 
 ## Правила прогрессии (`src/data/progression.ts`)
 
-Уровень растёт когда выполнено N заданий уровня **И** средний дискомфорт ≥ D:
+Уровень растёт, когда выполнено N заданий уровня:
 
-| Переход | N | средний дискомфорт |
-|---------|---|---------------------|
-| 1 → 2   | 3 | ≥ 3 |
-| 2 → 3   | 4 | ≥ 4 |
-| 3 → 4   | 4 | ≥ 5 |
-| 4 → 5   | 4 | ≥ 5 |
-| 5 → финиш | 4 | ≥ 5 |
+| Переход | N |
+|---------|---|
+| 1 → 2   | 3 |
+| 2 → 3   | 4 |
+| 3 → 4   | 4 |
+| 4 → 5   | 4 |
+| 5 → финиш | 4 |
 
-Защита от профанации: если средний дискомфорт ниже порога — система держит на уровне, давая тот же пул вариантов. Не наказание, фильтр на достоверность.
+Дискомфорт-оценка пишется в журнал (используется для аналитики и future-фичи «честный стоп-экран», см. идеи продукта), но в гейтинге уровня **сейчас не участвует**.
 
 **Подача задания дня:**
 - Если сегодня уже выполнено или перенесено (`deferredUntil` сегодня) → `null`.
-- Если на текущем уровне 0 выполнений → всегда `variantOrder: 1` (нормальный onboarding уровня).
-- Иначе — случайный из ещё не выполненных вариантов уровня.
+- Иначе — следующий невыполненный вариант уровня **строго по `variantOrder`** (1 → 2 → 3 → 4 → 5).
+- Если все 5 вариантов уровня пройдены, но уровень ещё не закрылся — `null` (никаких повторов).
 
 **Стрик**: календарный день с выполненным заданием = +1. Пропуск без переноса → 0, но уровень и выполненные задания сохраняются.
 
@@ -141,7 +161,8 @@ RootStack
 
 - **Push**: на устройствах без Google Services (часть Huawei и др. RU-сборок) FCM не приходит. Запланировано — RuStore Push SDK как fallback.
 - **Supabase** хостится вне РФ: для MVP приемлемо, на пост-MVP — возможно self-host на Selectel/Timeweb.
-- **Модерация текста рефлексии**: обязательна для прохождения ревью RuStore (анти-мат / анти-спам). Не реализовано.
+- **Модерация текста рефлексии и фидбэка**: клиентский фильтр в `src/data/moderation.ts` — мат (RU + leet) и контактные данные (URL, email, телефон, @handle). Блок при сохранении + красная подсветка поля. Это базовый минимум для ревью RuStore. Бекенд `gran-api` пока модерацию не дублирует — техдолг.
+- **Фидбэк-канал**: `FeedbackScreen` шлёт POST на `https://gran-api.vercel.app/api/feedback`, оттуда через Resend письмо уходит на `app.gransup@gmail.com`. Секреты на сервере. Подробнее — в памяти `project-feedback-pipeline` и `reference-brand-channels`.
 - **AsyncStorage изолирован по устройству**: до lazy-registration данные на смене устройства теряются. Это сознательный trade-off для MVP.
 
 ## Известные технические долги
@@ -152,6 +173,34 @@ RootStack
 
 ## Git и публикация
 
-Репо ещё не инициализирован (`Is a git repository: false`). При первой коммите — добавь `.gitignore` с `node_modules`, `.expo`, `dist`, `*.log`. Чувствительные ключи (Supabase URL/anon-key, когда появятся) — через `.env` + `expo-constants`, никогда в коде.
+Репо: https://github.com/DanPtrh/gran. Две ветки — `main` и `develop`.
 
-Сборка для сторов — через **EAS Build** (`eas build --platform android`). AAB заливается в Google Play и RuStore раздельно.
+### Правило веток
+
+**По умолчанию работаем в `develop`.** Любые фичи, эксперименты, незавершённые куски, экраны в полировке, любые коммиты в обычном рабочем цикле — всё идёт на `develop`. Не нужно спрашивать у пользователя «куда коммитить», ответ всегда `develop`.
+
+**`main` — только релизные состояния.** Туда переезжаем только когда:
+- Готовится сборка для подачи в RuStore / Google Play
+- Пользователь явно сказал «делаем релиз» / «переводим в main»
+
+Релизный мердж — обычным `git checkout main && git merge develop && git push origin main`, потом возврат на `develop` для продолжения работы. **Никаких force-push** на main без явного разрешения.
+
+### Гигиена коммитов
+
+- Чувствительные ключи (Supabase URL/anon-key, FCM, любые external API tokens) — через `.env` + `expo-constants`, никогда в коде. `.env*.local` уже в `.gitignore`.
+- Перед коммитом — проверять `git status`, чтобы случайно не уйти `node_modules`, `.expo`, временные SVG из `/tmp`, отладочные `console.log`.
+- Коммит-сообщения — содержательные, на русском или английском (соблюдай стиль предыдущих коммитов в репо). С `Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>` если коммит создавался ассистентом.
+
+### Сборка для стора
+
+Через **EAS Build**. Конфиг в `eas.json` (профили `development` / `preview` / `production`). Аккаунт: `@qumanchik`, проект: `gran`. Keystore — managed на сервере EAS.
+
+Команды:
+```bash
+npx eas build --platform android --profile preview     # APK для теста на устройстве (internal distribution)
+npx eas build --platform android --profile production  # AAB с autoIncrement versionCode — для подачи в стор
+```
+
+AAB заливается в Google Play и RuStore раздельно. Перед сборкой убедись, что `__DEV__`-bypass-логика в `pickTaskForToday` действительно отключится (продакшен-флаг `__DEV__ === false` это сделает автоматически).
+
+`appVersionSource: "remote"` — версия и versionCode хранятся на EAS-сервере, не в app.json. `version` (semver) можно править руками в app.json и в `package.json` синхронно.

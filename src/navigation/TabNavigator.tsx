@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Home, User } from 'lucide-react-native';
 import { DashboardScreen } from '../screens/DashboardScreen';
@@ -21,8 +22,9 @@ const TABS = [
 ];
 
 function TabBar({ state, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.bar}>
+    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
       {TABS.map((tab, index) => {
         const isFocused = state.index === index;
         const { Icon } = tab;

@@ -3,11 +3,12 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { Settings as SettingsIcon } from 'lucide-react-native';
 import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
 import { Button } from '../components/Button';
 import { ProgressOrb } from '../components/ProgressOrb';
-import { LevelProgress } from '../components/LevelProgress';
+import { PathStones } from '../components/PathStones';
 import { colors } from '../theme/colors';
 import { sizes } from '../theme/typography';
 import { Avatar, Task, Completion, SkillProgress } from '../types';
@@ -96,8 +97,15 @@ export function DashboardScreen() {
   }
 
   return (
-    <Screen scroll>
+    <Screen scroll edges={['top']}>
       <Animated.View entering={FadeIn.duration(500)} style={styles.header}>
+        <Pressable
+          onPress={() => navigation.navigate('Settings')}
+          hitSlop={16}
+          style={styles.settingsBtn}
+        >
+          <SettingsIcon size={20} color={colors.textDim} />
+        </Pressable>
         <Text variant="monoSm">{skill?.name}</Text>
         <Text variant="displayLg" style={styles.name}>{avatar.name}</Text>
         <Text variant="monoSm" style={styles.dayCounter}>
@@ -107,12 +115,17 @@ export function DashboardScreen() {
 
       <Animated.View entering={FadeIn.delay(150).duration(700)} style={styles.orbWrap}>
         <ProgressOrb level={progress.currentLevel} progress={progressFrac} />
-        <LevelProgress
-          current={progress.levelProgress}
-          needed={rule.needed}
-          label={progress.currentLevel < 5
-            ? `до уровня ${ROMAN[progress.currentLevel + 1]}`
-            : 'последний уровень'}
+        <PathStones
+          currentLevel={progress.currentLevel}
+          levelProgressFrac={progressFrac}
+          pathCompleted={!!progress.pathCompletedAt}
+          hint={
+            progress.pathCompletedAt
+              ? 'путь пройден'
+              : progress.currentLevel < 5
+                ? `${progress.levelProgress} из ${rule.needed} · до уровня ${ROMAN[progress.currentLevel + 1]}`
+                : `${progress.levelProgress} из ${rule.needed} · последний уровень`
+          }
         />
       </Animated.View>
 
@@ -182,6 +195,13 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 16,
     marginBottom: 32,
+  },
+  settingsBtn: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 8,
+    zIndex: 1,
   },
   name: {
     marginTop: 4,

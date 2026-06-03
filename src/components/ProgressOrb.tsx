@@ -70,7 +70,6 @@ export function ProgressOrb({ level, progress, size = 140 }: Props) {
 
   const showGlow = level >= 5;
   const showOuterRing = level >= 2;
-  const showInnerDot = level >= 3;
   const showOrbit = level >= 4;
   const extraGlowOpacity = Math.min(1, (level - 1) * 0.12);
 
@@ -142,10 +141,6 @@ export function ProgressOrb({ level, progress, size = 140 }: Props) {
         ]}
       />
 
-      {showInnerDot && (
-        <View style={[styles.innerDot, { width: size * 0.08, height: size * 0.08 }]} />
-      )}
-
       <View style={styles.levelText}>
         <Animated.Text style={[styles.levelNumber, { fontSize: size * 0.32 }]}>
           {ROMAN[level] ?? ''}
@@ -197,11 +192,6 @@ const styles = StyleSheet.create({
   core: {
     position: 'absolute',
     backgroundColor: colors.accent,
-  },
-  innerDot: {
-    position: 'absolute',
-    borderRadius: 999,
-    backgroundColor: colors.text,
   },
   levelText: {
     position: 'absolute',

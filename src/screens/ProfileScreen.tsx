@@ -3,21 +3,21 @@ import { View, StyleSheet, Alert, Pressable } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { Settings as SettingsIcon } from 'lucide-react-native';
 import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
-import { Button } from '../components/Button';
 import { ProgressOrb } from '../components/ProgressOrb';
-import { LevelProgress } from '../components/LevelProgress';
+import { PathStones } from '../components/PathStones';
 import { Logo } from '../components/Logo';
 import { colors } from '../theme/colors';
 import { Avatar, Completion, ProgressMap, Skill, SkillId, SkillProgress } from '../types';
 import {
-  clearAll,
   loadAvatar,
   loadCompletions,
   loadProgress,
   setActiveSkill,
 } from '../storage/avatar';
+import { loadPreferences, setConfirmSkillSwitch } from '../storage/preferences';
 import { skills, getSkill } from '../data/skills';
 import { getTaskById } from '../data/tasks';
 import { LEVEL_RULES, computeStreak } from '../data/progression';
@@ -40,8 +40,20 @@ export function ProfileScreen() {
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
+  async function doSwitch(skillId: SkillId) {
+    const next = await setActiveSkill(skillId);
+    setAvatar(next);
+    setProgressMap(await loadProgress());
+    navigation.navigate('Main', { screen: 'Dashboard' });
+  }
+
   async function activate(skillId: SkillId) {
     if (!avatar || skillId === avatar.activeSkillId) return;
+    const prefs = await loadPreferences();
+    if (!prefs.confirmSkillSwitch) {
+      await doSwitch(skillId);
+      return;
+    }
     const skill = getSkill(skillId);
     const hasProgress = !!progressMap[skillId];
     Alert.alert(
@@ -52,32 +64,15 @@ export function ProfileScreen() {
       [
         { text: 'Отмена', style: 'cancel' },
         {
-          text: hasProgress ? 'Вернуться' : 'Начать',
+          text: 'Не спрашивать снова',
           onPress: async () => {
-            const next = await setActiveSkill(skillId);
-            setAvatar(next);
-            setProgressMap(await loadProgress());
-            navigation.navigate('Main', { screen: 'Dashboard' });
+            await setConfirmSkillSwitch(false);
+            await doSwitch(skillId);
           },
         },
-      ],
-    );
-  }
-
-  function resetAll() {
-    Alert.alert(
-      'Удалить аватара?',
-      'Сотрётся всё: имя, прогресс по всем навыкам, журнал. Это действие нельзя отменить.',
-      [
-        { text: 'Отмена', style: 'cancel' },
         {
-          text: 'Удалить',
-          style: 'destructive',
-          onPress: async () => {
-            await clearAll();
-            const root = navigation.getParent() ?? navigation;
-            root.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
-          },
+          text: hasProgress ? 'Вернуться' : 'Начать',
+          onPress: () => doSwitch(skillId),
         },
       ],
     );
@@ -93,8 +88,15 @@ export function ProfileScreen() {
     : 0;
 
   return (
-    <Screen scroll>
+    <Screen scroll edges={['top']}>
       <Animated.View entering={FadeIn.duration(500)} style={styles.header}>
+        <Pressable
+          onPress={() => navigation.navigate('Settings')}
+          hitSlop={16}
+          style={styles.settingsBtn}
+        >
+          <SettingsIcon size={20} color={colors.textDim} />
+        </Pressable>
         <View style={styles.brandMark}>
           <Logo size={20} showFacets={false} />
         </View>
@@ -110,12 +112,17 @@ export function ProfileScreen() {
           {getSkill(avatar.activeSkillId)?.name}
         </Text>
         {activeProgress && (
-          <LevelProgress
-            current={activeProgress.levelProgress}
-            needed={rule.needed}
-            label={activeLevel < 5
-              ? `до уровня ${ROMAN[activeLevel + 1]}`
-              : 'последний уровень'}
+          <PathStones
+            currentLevel={activeProgress.currentLevel}
+            levelProgressFrac={progressFrac}
+            pathCompleted={!!activeProgress.pathCompletedAt}
+            hint={
+              activeProgress.pathCompletedAt
+                ? 'путь пройден'
+                : activeLevel < 5
+                  ? `${activeProgress.levelProgress} из ${rule.needed} · до уровня ${ROMAN[activeLevel + 1]}`
+                  : `${activeProgress.levelProgress} из ${rule.needed} · последний уровень`
+            }
           />
         )}
       </Animated.View>
@@ -149,42 +156,44 @@ export function ProfileScreen() {
               <Animated.View
                 key={c.id}
                 entering={FadeInDown.delay(600 + i * 50).duration(500)}
-                style={styles.entry}
               >
-                <View style={styles.entryHeader}>
-                  <Text variant="mono" style={styles.entryDate}>{fmtDate(c.completedAt)}</Text>
-                  <Text variant="mono" style={styles.entryDiscomfort}>
-                    дискомфорт · {c.discomfortScore}
-                  </Text>
-                </View>
-                {entrySkill && (
-                  <View style={styles.entrySkillRow}>
-                    <Text style={styles.entrySkillIcon}>{entrySkill.icon}</Text>
-                    <Text variant="mono" style={styles.entrySkillName}>
-                      {entrySkill.name}{t ? ` · уровень ${ROMAN[t.level]}` : ''}
+                <Pressable
+                  onPress={() => navigation.navigate('JournalEntry', { completionId: c.id })}
+                  style={styles.entry}
+                >
+                  <View style={styles.entryHeader}>
+                    <Text variant="mono" style={styles.entryDate}>{fmtDate(c.completedAt)}</Text>
+                    <Text variant="mono" style={styles.entryDiscomfort}>
+                      дискомфорт · {c.discomfortScore}
                     </Text>
                   </View>
-                )}
-                <Text variant="display" style={styles.entryTitle}>{t?.title ?? 'Задание'}</Text>
-                {!!c.reflectionHard && (
-                  <Text variant="bodyDim" style={styles.entryNote}>
-                    <Text variant="monoSm">сложное · </Text>{c.reflectionHard}
-                  </Text>
-                )}
-                {!!c.reflectionSurprise && (
-                  <Text variant="bodyDim" style={styles.entryNote}>
-                    <Text variant="monoSm">удивило · </Text>{c.reflectionSurprise}
-                  </Text>
-                )}
+                  {entrySkill && (
+                    <View style={styles.entrySkillRow}>
+                      <Text style={styles.entrySkillIcon}>{entrySkill.icon}</Text>
+                      <Text variant="mono" style={styles.entrySkillName}>
+                        {entrySkill.name}{t ? ` · уровень ${ROMAN[t.level]}` : ''}
+                      </Text>
+                    </View>
+                  )}
+                  <Text variant="display" style={styles.entryTitle}>{t?.title ?? 'Задание'}</Text>
+                  {!!c.reflectionHard && (
+                    <Text variant="bodyDim" style={styles.entryNote} numberOfLines={2}>
+                      <Text variant="monoSm">сложное · </Text>{c.reflectionHard}
+                    </Text>
+                  )}
+                  {!!c.reflectionSurprise && (
+                    <Text variant="bodyDim" style={styles.entryNote} numberOfLines={2}>
+                      <Text variant="monoSm">удивило · </Text>{c.reflectionSurprise}
+                    </Text>
+                  )}
+                  <Text variant="monoSm" style={styles.entryOpen}>открыть →</Text>
+                </Pressable>
               </Animated.View>
             );
           })
         )}
       </Animated.View>
 
-      <View style={styles.footer}>
-        <Button label="Удалить аватара" variant="ghost" onPress={resetAll} />
-      </View>
     </Screen>
   );
 }
@@ -271,6 +280,13 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 20,
     alignItems: 'center',
+  },
+  settingsBtn: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 8,
+    zIndex: 1,
   },
   brandMark: {
     marginBottom: 16,
@@ -393,8 +409,8 @@ const styles = StyleSheet.create({
   entryNote: {
     marginTop: 6,
   },
-  footer: {
-    marginTop: 8,
-    marginBottom: 24,
+  entryOpen: {
+    marginTop: 12,
+    color: colors.accent,
   },
 });

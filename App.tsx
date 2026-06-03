@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
   Fraunces_400Regular,
@@ -13,8 +13,16 @@ import {
   JetBrainsMono_500Medium,
 } from '@expo-google-fonts/jetbrains-mono';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { Logo } from './src/components/Logo';
+import { loadAvatar } from './src/storage/avatar';
+import { RootStackParamList } from './src/navigation/types';
 import { colors } from './src/theme/colors';
+
+// Держим native splash до полной готовности (шрифты + загрузка аватара).
+// На слабых устройствах это убирает «мерцание» между шрифтовым boot-view
+// и первым реальным экраном.
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
+type InitialRoute = keyof RootStackParamList;
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -24,36 +32,27 @@ export default function App() {
     JetBrainsMono_400Regular,
     JetBrainsMono_500Medium,
   });
+  const [initialRoute, setInitialRoute] = useState<InitialRoute | null>(null);
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.boot}>
-        <Logo size={96} />
-        <Text style={styles.bootWordmark}>Г Р А Н Ь</Text>
-      </View>
-    );
-  }
+  useEffect(() => {
+    loadAvatar()
+      .then((a) => setInitialRoute(a ? 'Main' : 'Onboarding'))
+      .catch(() => setInitialRoute('Onboarding'));
+  }, []);
+
+  const ready = fontsLoaded && initialRoute !== null;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  if (!ready || !initialRoute) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
       <SafeAreaProvider>
-        <RootNavigator />
+        <RootNavigator initialRoute={initialRoute} />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  boot: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 32,
-  },
-  bootWordmark: {
-    fontSize: 18,
-    letterSpacing: 8,
-    color: colors.text,
-  },
-});

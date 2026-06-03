@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '../theme/colors';
 
@@ -9,12 +9,19 @@ interface Props {
   scroll?: boolean;
   style?: ViewStyle;
   contentStyle?: ViewStyle;
+  edges?: ReadonlyArray<Edge>;
 }
 
-export function Screen({ children, scroll, style, contentStyle }: Props) {
+export function Screen({
+  children,
+  scroll,
+  style,
+  contentStyle,
+  edges = ['top', 'bottom'],
+}: Props) {
   const Container: any = scroll ? ScrollView : View;
   return (
-    <SafeAreaView style={[styles.safe, style]} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.safe, style]} edges={edges}>
       <StatusBar style="light" />
       <Container
         style={styles.container}

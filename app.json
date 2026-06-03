@@ -2,7 +2,7 @@
   "expo": {
     "name": "Грань",
     "slug": "gran",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -30,7 +30,21 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/adaptive-icon.png",
+          "color": "#C8923A",
+          "defaultChannel": "default"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b2097493-2f9e-45e7-bc81-a796f88ac123"
+      }
+    },
+    "owner": "qumanchik"
   }
 }
