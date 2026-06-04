@@ -38,7 +38,8 @@
           "color": "#C8923A",
           "defaultChannel": "default"
         }
-      ]
+      ],
+      "./plugins/withAbiFilter"
     ],
     "extra": {
       "eas": {
