@@ -16,6 +16,11 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { loadAvatar } from './src/storage/avatar';
 import { RootStackParamList } from './src/navigation/types';
 import { colors } from './src/theme/colors';
+import { RiveSpike } from './src/spike/RiveSpike';
+
+// СПАЙК: пока true — приложение запускается прямо в тестовый экран Rive
+// (см. src/spike/RiveSpike.tsx). Вернуть в false / удалить после проверки.
+const RIVE_SPIKE = true;
 
 // Держим native splash до полной готовности (шрифты + загрузка аватара).
 // На слабых устройствах это убирает «мерцание» между шрифтовым boot-view
@@ -25,6 +30,20 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 type InitialRoute = keyof RootStackParamList;
 
 export default function App() {
+  if (RIVE_SPIKE) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+        <SafeAreaProvider>
+          <RiveSpike />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    );
+  }
+
+  return <MainApp />;
+}
+
+function MainApp() {
   const [fontsLoaded] = useFonts({
     Fraunces_400Regular,
     Fraunces_500Medium,
