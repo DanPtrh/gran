@@ -33,6 +33,9 @@ yarn-error.*
 # local env files
 .env*.local
 
+# store assets (графика витрины RuStore/Play — хранится локально)
+store-assets/
+
 # typescript
 *.tsbuildinfo
 
